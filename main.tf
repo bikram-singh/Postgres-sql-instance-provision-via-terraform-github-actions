@@ -13,11 +13,7 @@ resource "google_sql_database_instance" "postgres_instance" {
     disk_autoresize   = true
     activation_policy = "ALWAYS"
 
-    user_labels = {
-      environment = "dev"
-      team        = "data"
-      project     = "rate-auto"
-    }
+    user_labels = var.user_labels
 
     ip_configuration {
       ipv4_enabled    = false
