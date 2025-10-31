@@ -63,6 +63,27 @@ resource "google_sql_database_instance" "postgres_instance" {
       hour = 0
     }
   }
+
+  # 👇 Lifecycle block: prevents accidental deletion and ignores safe changes
+  lifecycle {
+    prevent_destroy = true
+
+    ignore_changes = [
+      settings[0].activation_policy,            # Safe to change start policy
+      settings[0].availability_type,            # HA mode toggle ignored
+      settings[0].backup_configuration,         # Backup time/location updates
+      settings[0].crash_safe_replication,       # Minor replication config
+      settings[0].disk_size,                    # Disk size (auto-resize safe)
+      settings[0].disk_type,                    # SSD/HDD swap safe
+      settings[0].ip_configuration,             # Network or IP changes
+      settings[0].maintenance_window,           # Maintenance schedule
+      settings[0].tier,                         # Machine type (CPU/memory)
+      settings[0].user_labels,                  # Tag or label metadata
+      settings[0].insights_config,              # Query insights changes
+      settings[0].database_flags,               # DB-level tuning params
+      settings[0].authorized_gae_applications,  # Rarely used, safe to ignore
+    ]
+  }
 }
 
 resource "google_sql_user" "postgres_user" {
