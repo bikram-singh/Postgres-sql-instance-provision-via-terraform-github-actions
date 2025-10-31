@@ -73,7 +73,7 @@ jobs:
       - name: Terraform Init
         run: |
           echo "🔧 Initializing Terraform for $env_name..."
-          terraform init -backend-config=environments/${{ env.env_name }}/backend.conf
+          terraform init -backend-config=environments/${{ env.env_name }}/backend.conf.tfvars
 
       # --------------------------
       # Terraform Format Check
