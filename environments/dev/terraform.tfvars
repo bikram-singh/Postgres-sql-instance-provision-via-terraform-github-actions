@@ -13,6 +13,6 @@ database_name            = "test_db"
 backup_location          = "us"
 log_retention_days       = 7
 retained_backups         = 7
-deletion_protection      = false
+deletion_protection      = true
 retain_backups_on_delete = true
 final_backup_on_delete   = true
