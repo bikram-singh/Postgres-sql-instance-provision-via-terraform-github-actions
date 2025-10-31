@@ -1,21 +1,34 @@
+# ========================
+# Terraform Directories & State Files
+# ========================
 .terraform/
 *.tfstate
 *.tfstate.backup
 *.log
 .terraform.lock.hcl
 
-# Sensitive variables
+# ========================
+# Sensitive Variables (Global)
+# ========================
 terraform.tfvars
 *.env
 
-# IDE / OS files
+# Allow environment-specific .tfvars and .conf files
+!environments/**/*.tfvars
+!environments/**/*.conf
+
+# ========================
+# IDE / OS Files
+# ========================
 .vscode/
 .idea/
 .DS_Store
 *.bak
 *.swp
 
-# Binary or compressed files
+# ========================
+# Binary or Compressed Files
+# ========================
 *.zip
 *.exe
 *.dll
@@ -23,6 +36,8 @@ terraform.tfvars
 *.iso
 *.gz
 
-# Node, Python, other project files (if any future CI/CD integrations)
+# ========================
+# Node / Python / Other Project Files
+# ========================
 node_modules/
 __pycache__/
