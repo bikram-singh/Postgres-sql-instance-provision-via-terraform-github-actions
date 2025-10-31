@@ -16,3 +16,9 @@ retained_backups         = 7
 deletion_protection      = true
 retain_backups_on_delete = true
 final_backup_on_delete   = true
+
+user_labels = {
+  environment = "prod"
+  team        = "db-team"
+  project     = "prod-project"
+}
