@@ -38,10 +38,10 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SA_EMAIL }}
 
-      - name: Terraform Init # This should be environment Wise
-        run: terraform init -backend-config="bucket=dev-us-central1-terraform-state" -backend-config="prefix=terraform/state/dev"
-        #run: terraform init -backend-config="bucket=stage-us-central1-terraform-state" -backend-config="prefix=terraform/state/stage"
-        #run: terraform init -backend-config="bucket=prod-us-central1-terraform-state" -backend-config="prefix=terraform/state/stage"
+      - name: Terraform Init 
+        run: terraform init -backend-config="bucket=dev-us-central1-terraform-state" -backend-config="prefix=terraform/state/dev"       # For Dev Environment
+        #run: terraform init -backend-config="bucket=stage-us-central1-terraform-state" -backend-config="prefix=terraform/state/stage"  # For Stage Environment
+        #run: terraform init -backend-config="bucket=prod-us-central1-terraform-state" -backend-config="prefix=terraform/state/prod"    # For Prod Environment
 
       - name: Terraform Format Check
         run: terraform fmt -check
