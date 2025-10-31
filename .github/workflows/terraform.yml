@@ -2,35 +2,50 @@ name: Provision-Postgres-sql-instance-via-terraform-github-actions
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    paths:
+      - 'environments/dev/**'
+      - 'environments/stage/**'
+      - 'environments/prod/**'
   workflow_dispatch:
-
-env:
-  GOOGLE_PROJECT: "your-gcp-project-id"
-  TF_VAR_project_id: "your-gcp-project-id"
-  TF_VAR_region: "us-central1"
-  TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
 
 permissions:
   contents: read
   id-token: write
 
+env:
+  TF_VERSION: "1.8.5"
+  TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
+
 jobs:
   terraform:
-    name: Terraform Plan & Validate
+    name: Terraform Validate, Plan & Apply
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.8.5
+      # --------------------------
+      # Detect environment automatically
+      # --------------------------
+      - name: Detect environment
+        id: detect-env
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep 'environments/dev/'; then
+            echo "env_name=dev" >> $GITHUB_ENV
+          elif git diff --name-only HEAD~1 HEAD | grep 'environments/stage/'; then
+            echo "env_name=stage" >> $GITHUB_ENV
+          elif git diff --name-only HEAD~1 HEAD | grep 'environments/prod/'; then
+            echo "env_name=prod" >> $GITHUB_ENV
+          else
+            echo "No environment changes detected. Exiting..."
+            exit 0
+          fi
+          echo "✅ Environment detected: $env_name"
 
+      # --------------------------
+      # Authenticate to Google Cloud
+      # --------------------------
       - name: Google Cloud Auth
         id: auth
         uses: google-github-actions/auth@v2
@@ -38,21 +53,47 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SA_EMAIL }}
 
-      - name: Terraform Init 
-        run: terraform init -backend-config="bucket=dev-us-central-1-terraform-state" -backend-config="prefix=terraform/state/dev"       # For Dev Environment
-        #run: terraform init -backend-config="bucket=stage-us-central1-terraform-state" -backend-config="prefix=terraform/state/stage"  # For Stage Environment
-        #run: terraform init -backend-config="bucket=prod-us-central1-terraform-state" -backend-config="prefix=terraform/state/prod"    # For Prod Environment
+      # --------------------------
+      # Setup Terraform
+      # --------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
+      # --------------------------
+      # Terraform Init
+      # Backend defined by env folder
+      # --------------------------
+      - name: Terraform Init
+        run: |
+          echo "🔧 Initializing Terraform for $env_name..."
+          terraform init -backend-config=environments/${{ env.env_name }}/backend.conf
+
+      # --------------------------
+      # Terraform Format Check
+      # --------------------------
       - name: Terraform Format Check
         run: terraform fmt -check
 
+      # --------------------------
+      # Terraform Validate
+      # --------------------------
       - name: Terraform Validate
         run: terraform validate
 
+      # --------------------------
+      # Terraform Plan
+      # --------------------------
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: |
+          terraform plan \
+            -var-file=environments/${{ env.env_name }}/terraform.tfvars \
+            -out=tfplan
 
-      # Optional: Only allow apply on manual trigger
-      - name: Terraform Apply (Manual Approval)
+      # --------------------------
+      # Terraform Apply (Manual Trigger Only)
+      # --------------------------
+      - name: Terraform Apply (Manual Trigger)
         if: github.event_name == 'workflow_dispatch'
         run: terraform apply -auto-approve tfplan
