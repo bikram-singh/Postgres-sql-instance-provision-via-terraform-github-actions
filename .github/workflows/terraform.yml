@@ -1,4 +1,4 @@
-name: Terraform CI/CD
+name: Provision-Postgres-sql-instance-via-terraform-github-actions
 
 on:
   push:
