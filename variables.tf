@@ -42,6 +42,11 @@ variable "vpc_network" {
   type        = string
 }
 
+variable "user_labels" {
+  description = "Map of labels to assign to the SQL instance"
+  type        = map(string)
+}
+
 variable "db_user" {
   description = "The database user name"
   type        = string
