@@ -39,7 +39,7 @@ jobs:
           service_account: ${{ secrets.GCP_SA_EMAIL }}
 
       - name: Terraform Init
-        run: terraform init -backend-config="bucket=rate-auto-dev-us-central1-terraform-state" -backend-config="prefix=terraform/state/dev"
+        run: terraform init -backend-config="bucket=dev-us-central1-terraform-state" -backend-config="prefix=terraform/state/dev"
 
       - name: Terraform Format Check
         run: terraform fmt -check
