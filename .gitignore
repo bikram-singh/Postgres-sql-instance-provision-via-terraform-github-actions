@@ -1,0 +1,28 @@
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.log
+.terraform.lock.hcl
+
+# Sensitive variables
+terraform.tfvars
+*.env
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+*.bak
+*.swp
+
+# Binary or compressed files
+*.zip
+*.exe
+*.dll
+*.msi
+*.iso
+*.gz
+
+# Node, Python, other project files (if any future CI/CD integrations)
+node_modules/
+__pycache__/
