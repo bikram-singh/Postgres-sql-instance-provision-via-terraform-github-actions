@@ -31,17 +31,22 @@ jobs:
       - name: Detect environment
         id: detect-env
         run: |
-          if git diff --name-only HEAD~1 HEAD | grep 'environments/dev/'; then
+          echo "🔍 Detecting environment..."
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD || echo "")
+
+          if echo "$CHANGED_FILES" | grep -q 'environments/dev/'; then
             echo "env_name=dev" >> $GITHUB_ENV
-          elif git diff --name-only HEAD~1 HEAD | grep 'environments/stage/'; then
+          elif echo "$CHANGED_FILES" | grep -q 'environments/stage/'; then
             echo "env_name=stage" >> $GITHUB_ENV
-          elif git diff --name-only HEAD~1 HEAD | grep 'environments/prod/'; then
+          elif echo "$CHANGED_FILES" | grep -q 'environments/prod/'; then
             echo "env_name=prod" >> $GITHUB_ENV
           else
-            echo "No environment changes detected. Exiting..."
-            exit 0
+            echo "No environment changes detected — defaulting to dev."
+            echo "env_name=dev" >> $GITHUB_ENV
           fi
-          echo "✅ Environment detected: $env_name"
+
+          echo "✅ Environment set to: $(cat $GITHUB_ENV | grep env_name)"
+
 
       # --------------------------
       # Authenticate to Google Cloud
