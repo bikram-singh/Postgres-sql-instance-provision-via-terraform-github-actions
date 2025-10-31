@@ -226,10 +226,5 @@ gcloud iam service-accounts add-iam-policy-binding postgres-sql@PROJECT_ID.iam.g
 
 ---
 
-## 📜 License
-MIT License — see LICENSE file.
-
----
-
 _Last updated: October 2025_  
 Maintainer: **Bikram Singh**
