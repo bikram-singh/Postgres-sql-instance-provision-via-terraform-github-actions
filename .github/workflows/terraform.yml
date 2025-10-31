@@ -1,12 +1,25 @@
 name: Provision-Postgres-sql-instance-via-terraform-github-actions
 
 on:
+  # --------------------------------------------------------
+  # Trigger the workflow on pushes that modify environment folders
+  # --------------------------------------------------------
   push:
     paths:
       - 'environments/dev/**'
       - 'environments/stage/**'
       - 'environments/prod/**'
+
+  # --------------------------------------------------------
+  # Allow manual execution from GitHub Actions UI
+  # Now supports selecting an environment (dev/stage/prod)
+  # --------------------------------------------------------
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select environment to deploy (dev, stage, prod)"
+        required: false
+        default: "dev"
 
 permissions:
   contents: read
@@ -22,11 +35,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # --------------------------
+      # Checkout repository
+      # --------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
       # --------------------------
-      # Detect environment automatically
+      # Detect environment automatically or from manual input
       # --------------------------
       - name: Detect environment
         id: detect-env
@@ -34,19 +50,26 @@ jobs:
           echo "🔍 Detecting environment..."
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD || echo "")
 
-          if echo "$CHANGED_FILES" | grep -q 'environments/dev/'; then
+          # If workflow is manually triggered and environment is selected, use that
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            echo "env_name=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+            echo "✅ Using manually selected environment: ${{ github.event.inputs.environment }}"
+          # Otherwise, detect automatically based on modified paths
+          elif echo "$CHANGED_FILES" | grep -q 'environments/dev/'; then
             echo "env_name=dev" >> $GITHUB_ENV
+            echo "✅ Auto-detected environment: dev"
           elif echo "$CHANGED_FILES" | grep -q 'environments/stage/'; then
             echo "env_name=stage" >> $GITHUB_ENV
+            echo "✅ Auto-detected environment: stage"
           elif echo "$CHANGED_FILES" | grep -q 'environments/prod/'; then
             echo "env_name=prod" >> $GITHUB_ENV
+            echo "✅ Auto-detected environment: prod"
           else
             echo "⚠️ No environment changes detected — defaulting to dev."
             echo "env_name=dev" >> $GITHUB_ENV
-           fi
+          fi
 
-           echo "✅ Environment set to: $(cat $GITHUB_ENV | grep env_name)"
-
+          echo "✅ Environment set to: $(cat $GITHUB_ENV | grep env_name)"
 
       # --------------------------
       # Authenticate to Google Cloud
