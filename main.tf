@@ -72,7 +72,6 @@ resource "google_sql_database_instance" "postgres_instance" {
       settings[0].activation_policy,            # Safe to change start policy
       settings[0].availability_type,            # HA mode toggle ignored
       settings[0].backup_configuration,         # Backup time/location updates
-      settings[0].crash_safe_replication,       # Minor replication config
       settings[0].disk_size,                    # Disk size (auto-resize safe)
       settings[0].disk_type,                    # SSD/HDD swap safe
       settings[0].ip_configuration,             # Network or IP changes
@@ -81,7 +80,7 @@ resource "google_sql_database_instance" "postgres_instance" {
       settings[0].user_labels,                  # Tag or label metadata
       settings[0].insights_config,              # Query insights changes
       settings[0].database_flags,               # DB-level tuning params
-      settings[0].authorized_gae_applications,  # Rarely used, safe to ignore
+      
     ]
   }
 }
