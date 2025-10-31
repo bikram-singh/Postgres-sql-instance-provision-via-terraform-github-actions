@@ -99,10 +99,14 @@ jobs:
           terraform init -backend-config=environments/${{ env.env_name }}/backend.conf.tfvars
 
       # --------------------------
-      # Terraform Format Check
+      # Terraform Format (Auto Fix + Check)
       # --------------------------
+      - name: Terraform Format (Auto Fix)
+        run: terraform fmt -recursive
+
       - name: Terraform Format Check
         run: terraform fmt -check
+
 
       # --------------------------
       # Terraform Validate
